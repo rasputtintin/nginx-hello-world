@@ -3,25 +3,43 @@ version: 2.1
 jobs:
   build-and-scan:
     machine:
-      docker_layer_caching: true
+      docker_layer_caching: true  # Enables Docker caching for faster builds
     steps:
+      # Step 1: Check out the code
       - checkout
+
+      # Step 2: Authenticate with Docker
       - run:
           name: Authenticate with Docker
           command: |
             echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+
+      # Step 3: Pull Base Image
       - run:
           name: Pull Image
           command: docker pull ubuntu:latest
 
-
-
-      # Step 1: Install Anchore for vulnerability scanning
+      # Step 4: Install and Run Anchore for Vulnerability Scanning
       - run:
           name: Scan for Container Vulnerabilities - Anchore
           command: |
-            docker pull anchore/scan-action
-            docker run anchore/scan-action hello-world-nginx
+            curl -sfL https://raw.githubusercontent.com/anchore/scan-action/main/install.sh | sh
+            ./scan-action scan --image ubuntu:latest --policy "high,critical"
+
+      # Step 5: Scan Code for Vulnerabilities
+      - run:
+          name: Code Scanning with Trivy
+          command: |
+            curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/scripts/install.sh | sh
+            trivy fs --exit-code 1 --severity HIGH,CRITICAL .
+
+      # Step 6: License and Dependency Scanning with Snyk
+      - run:
+          name: Dependency and License Scanning - Snyk
+          command: |
+            curl -o- https://raw.githubusercontent.com/snyk/snyk-install/master/install.sh | bash
+            snyk auth "$SNYK_AUTH_TOKEN"
+            snyk test --all-projects --severity-threshold=high
 
 workflows:
   version: 2
