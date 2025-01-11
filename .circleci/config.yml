@@ -26,6 +26,8 @@ jobs:
       - run:
           name: Anchore Scan
           command: |
+            export ANCHORE_CLI_USER='admin'
+            export ANCHORE_CLI_PASS='foobar'       
             echo "Adding image to Anchore Engine"
             anchore-cli image add $ANCHORE_SCAN_IMAGE
             echo "Waiting for image analysis to complete"
