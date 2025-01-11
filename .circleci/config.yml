@@ -11,4 +11,4 @@ jobs:
           command: echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
       - run:
           name: Pull Image
-          command: docker pull ubuntu:latest
+          command: docker pull cimg/base:stable
