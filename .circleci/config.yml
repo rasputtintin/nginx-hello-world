@@ -19,21 +19,40 @@ jobs:
           name: Pull Image
           command: docker pull ubuntu:latest
 
-      # Step 4: Install and Run Anchore for Vulnerability Scanning
+      # Step 4: Install Anchore CLI
       - run:
-          name: Scan for Container Vulnerabilities - Anchore
+          name: Install Anchore CLI
           command: |
-            curl -sfL https://raw.githubusercontent.com/anchore/scan-action/main/install.sh | sh
-            ./scan-action scan --image ubuntu:latest --policy "high,critical"
+            curl -sSL https://github.com/anchore/cli/releases/download/v0.10.0/anchore-cli-linux | sudo tee /usr/local/bin/anchore-cli
+            sudo chmod +x /usr/local/bin/anchore-cli
 
-      # Step 5: Scan Code for Vulnerabilities
+      # Step 5: Start Anchore Engine (Dockerized)
+      - run:
+          name: Start Anchore Engine
+          command: |
+            docker run -d --name anchore-engine --network host -e ANCHORE_CLI_USER=admin -e ANCHORE_CLI_PASS=foobar anchore/engine:latest
+
+      # Step 6: Wait for Anchore Engine to Initialize
+      - run:
+          name: Wait for Anchore Initialization
+          command: sleep 60  # Allow enough time for Anchore Engine to start
+
+      # Step 7: Add and Analyze Image
+      - run:
+          name: Scan Image with Anchore
+          command: |
+            anchore-cli image add ubuntu:latest
+            anchore-cli image wait ubuntu:latest
+            anchore-cli image scan ubuntu:latest --severity "high,critical"
+
+      # Step 8: Scan Code for Vulnerabilities
       - run:
           name: Code Scanning with Trivy
           command: |
             curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/scripts/install.sh | sh
             trivy fs --exit-code 1 --severity HIGH,CRITICAL .
 
-      # Step 6: License and Dependency Scanning with Snyk
+      # Step 9: License and Dependency Scanning with Snyk
       - run:
           name: Dependency and License Scanning - Snyk
           command: |
