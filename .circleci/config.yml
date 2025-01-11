@@ -1,44 +1,43 @@
 version: 2.1
 
 jobs:
-  build-and-scan:
+  vulnerability-scan:
     machine:
       docker_layer_caching: true  # Enables Docker caching for faster builds
     steps:
-      # Step 1: Check out the code
+      # Step 1: Check out the code (if applicable)
       - checkout
 
-      # Step 2: Authenticate with Docker
+      # Step 2: Authenticate with Docker (optional, for private images)
       - run:
           name: Authenticate with Docker
           command: |
             echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
 
-      # Step 3: Pull Base Image
+      # Step 3: Pull the Docker image to scan
       - run:
-          name: Pull Image
+          name: Pull Docker Image
           command: docker pull ubuntu:latest
-          
-  scan:
-    docker:
-      - image: anchore/engine-cli:latest
-    steps:
+
+      # Step 4: Install Trivy vulnerability scanner
       - run:
-          name: Anchore Scan
+          name: Install Trivy
           command: |
-            export ANCHORE_CLI_USER='admin'
-            export ANCHORE_CLI_PASS='foobar'       
-            echo "Adding image to Anchore Engine"
-            anchore-cli image add $ANCHORE_SCAN_IMAGE
-            echo "Waiting for image analysis to complete"
-            counter=0
-            while (! (anchore-cli image get $ANCHORE_SCAN_IMAGE | grep 'Status: analyzed') ) ; do echo -n "." ; sleep 10 ; if  ; then echo " Timeout waiting for analysis" ; exit 1 ; fi ; counter=$(($counter+1)) ; done
-            echo "Analysis complete"
-            if  ; then anchore-cli evaluate check $ANCHORE_SCAN_IMAGE  ; fi
+            curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/scripts/install.sh | sh
+
+      # Step 5: Run Trivy scan on the container
+      - run:
+          name: Perform Vulnerability Scan with Trivy
+          command: |
+            trivy image --exit-code 1 --severity HIGH,CRITICAL ubuntu:latest
+
+      # Step 6: Cleanup Docker resources (optional)
+      - run:
+          name: Cleanup Docker
+          command: docker system prune -f
 
 workflows:
   version: 2
-  build-and-scan-workflow:
+  scan-workflow:
     jobs:
-      - build-and-scan
-      - scan
+      - vulnerability-scan
