@@ -1,7 +1,7 @@
 version: 2.1
 
 jobs:
-  vulnerability-and-license-scan:
+  vulnerability-scan:
     machine:
       docker_layer_caching: true  # Enables Docker caching for faster builds
     steps:
@@ -34,14 +34,19 @@ jobs:
             sudo mv trivy /usr/local/bin/trivy
             trivy --version  # Verify installation
 
-      # Step 5: Run Trivy scan on the container for vulnerabilities
+      # Step 5: Run Trivy scan on the container
       - run:
           name: Perform Vulnerability Scan with Trivy
           command: |
             trivy image --exit-code 1 --severity HIGH,CRITICAL ubuntu:latest
 
-      # Step 6: Run Trivy scan for licenses
+      # Step 6: Cleanup Docker resources (optional)
       - run:
-          name: Perform License Scan with Trivy
-          command: |
-            trivy image --format table --list-all-packages --severity HIGH,CRITICAL ubuntu:latest
+          name: Cleanup Docker
+          command: docker system prune -f
+
+workflows:
+  version: 2
+  scan-workflow:
+    jobs:
+      - vulnerability-scan
