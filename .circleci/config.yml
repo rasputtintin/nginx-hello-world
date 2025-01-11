@@ -1,7 +1,7 @@
 version: 2.1
 
 jobs:
-  vulnerability-scan:
+  vulnerability-and-license-scan:
     machine:
       docker_layer_caching: true  # Enables Docker caching for faster builds
     steps:
@@ -34,19 +34,26 @@ jobs:
             sudo mv trivy /usr/local/bin/trivy
             trivy --version  # Verify installation
 
-      # Step 5: Run Trivy scan on the container
+      # Step 5: Run Trivy scan on the container for vulnerabilities
       - run:
           name: Perform Vulnerability Scan with Trivy
           command: |
             trivy image --exit-code 1 --severity HIGH,CRITICAL ubuntu:latest
 
-      # Step 6: Cleanup Docker resources (optional)
+      # Step 6: Run Trivy scan for licenses
       - run:
-          name: Cleanup Docker
-          command: docker system prune -f
+          name: Perform License Scan with Trivy
+          command: |
+            trivy image --format table --list-all-packages --severity HIGH,CRITICAL ubuntu:latest
 
-workflows:
-  version: 2
-  scan-workflow:
-    jobs:
-      - vulnerability-scan
+      # Step 7: Install Snyk for dependency scanning
+      - run:
+          name: Install Snyk
+          command: |
+            curl -o- https://raw.githubusercontent.com/snyk/snyk-install/master/install.sh | bash
+            snyk --version  # Verify installation
+
+      # Step 8: Run Snyk dependency scan
+      - run:
+          name: Perform Dependency and License Scanning with Snyk
+          command:
