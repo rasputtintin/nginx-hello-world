@@ -45,15 +45,3 @@ jobs:
           name: Perform License Scan with Trivy
           command: |
             trivy image --format table --list-all-packages --severity HIGH,CRITICAL ubuntu:latest
-
-      # Step 7: Install Snyk for dependency scanning
-      - run:
-          name: Install Snyk
-          command: |
-            curl -o- https://raw.githubusercontent.com/snyk/snyk-install/master/install.sh | bash
-            snyk --version  # Verify installation
-
-      # Step 8: Run Snyk dependency scan
-      - run:
-          name: Perform Dependency and License Scanning with Snyk
-          command:
