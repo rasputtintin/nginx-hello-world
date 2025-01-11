@@ -1,7 +1,7 @@
 version: 2.1
 
 jobs:
-  build:
+  build-and-scan:
     machine:
       docker_layer_caching: true
     steps:
@@ -14,15 +14,44 @@ jobs:
           name: Pull Image
           command: docker pull ubuntu:latest
 
-jobs:
-  scan:
-    docker:
-      - image: circleci/docker:latest
-    steps:
-      - checkout
+
+      # Step 1: Install Trivy for vulnerability scanning
+      - run:
+          name: Install Trivy
+          command: |
+            sudo apt-get update
+            sudo apt-get install -y wget
+            wget -qO- https://github.com/aquasecurity/trivy/releases/latest/download/trivy_$(uname -s)_$(uname -m).tar.gz | tar xz -C /usr/local/bin/
+
       - run:
           name: Scan for Container Vulnerabilities
           command: |
             docker pull anchore/scan-action
             docker run anchore/scan-action hello-world-nginx
 
+      # Step 2: Run vulnerability scan on the Docker image
+      - run:
+          name: Scan Docker Image for Vulnerabilities
+          command: |
+            echo "Scanning Docker image: ubuntu:latest"
+            trivy image --exit-code 1 --severity CRITICAL,HIGH ubuntu:latest
+
+      # Step 3: Run vulnerability scan on dependencies (optional)
+      - run:
+          name: Scan Project Dependencies
+          command: |
+            echo "Scanning dependencies"
+            trivy fs --exit-code 1 --severity CRITICAL,HIGH --ignore-unfixed .
+
+      # Step 4: Run source code analysis (optional)
+      - run:
+          name: Scan Source Code
+          command: |
+            echo "Scanning source code for vulnerabilities"
+            trivy config --exit-code 1 --severity CRITICAL,HIGH .
+
+workflows:
+  version: 2
+  build-and-scan-workflow:
+    jobs:
+      - build-and-scan
