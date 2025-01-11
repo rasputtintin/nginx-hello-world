@@ -26,12 +26,17 @@ jobs:
             curl -sSL https://github.com/anchore/cli/releases/download/v0.10.0/anchore-cli-linux | sudo tee /usr/local/bin/anchore-cli
             sudo chmod +x /usr/local/bin/anchore-cli
 
-      # Step 5: Start Anchore Engine (Dockerized)
-      - run:
-          name: Start Anchore Engine
-          command: |
-            docker run -d --name anchore-engine --network host -e ANCHORE_CLI_USER=admin -e ANCHORE_CLI_PASS=foobar anchore/engine:latest
+      # Step 5: Start Anchore Engine (Correct Image)
+        - run:
+            name: Start Anchore Engine
+            command: |
+              docker pull docker.io/anchore/anchore-engine:latest
+              docker run -d --name anchore-engine --network host \
+                -e ANCHORE_CLI_USER=admin \
+                -e ANCHORE_CLI_PASS=foobar \
+                docker.io/anchore/anchore-engine:latest
 
+      
       # Step 6: Wait for Anchore Engine to Initialize
       - run:
           name: Wait for Anchore Initialization
