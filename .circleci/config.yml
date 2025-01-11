@@ -23,18 +23,18 @@ jobs:
       - run:
           name: Install Anchore CLI
           command: |
-            # Download the Anchore CLI binary to /tmp
+            # Download the correct Anchore CLI binary for Linux amd64
             curl -sSL https://github.com/anchore/cli/releases/download/v0.10.0/anchore-cli-linux-amd64 -o /tmp/anchore-cli-linux-amd64
 
-            # Check if the file is downloaded and is executable
-            file /tmp/anchore-cli-linux-amd64  # Print the file type to verify
+            # Check the file type to ensure it's a binary
+            file /tmp/anchore-cli-linux-amd64
 
-            # Move the binary to /usr/local/bin and make it executable
+            # If the file is valid, move it to /usr/local/bin and make it executable
             sudo mv /tmp/anchore-cli-linux-amd64 /usr/local/bin/anchore-cli
             sudo chmod +x /usr/local/bin/anchore-cli
 
-            # Verify if the binary is installed correctly
-            anchore-cli --version  # This should print the version of anchore-cli if installed correctly
+            # Verify installation by checking the version
+            anchore-cli --version  # Should output the Anchore CLI version if successful
 
       # Step 5: Start Anchore Engine
       - run:
