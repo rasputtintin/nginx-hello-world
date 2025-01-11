@@ -23,8 +23,9 @@ jobs:
       - run:
           name: Install Anchore CLI
           command: |
-            curl -sSL https://github.com/anchore/cli/releases/download/v0.10.0/anchore-cli-linux | sudo tee /usr/local/bin/anchore-cli
+            curl -sSL https://github.com/anchore/cli/releases/download/v0.10.0/anchore-cli-linux-amd64 -o /usr/local/bin/anchore-cli
             sudo chmod +x /usr/local/bin/anchore-cli
+
 
       # Step 5: Start Anchore Engine
       - run:
