@@ -13,3 +13,16 @@ jobs:
       - run:
           name: Pull Image
           command: docker pull ubuntu:latest
+
+jobs:
+  scan:
+    docker:
+      - image: circleci/docker:latest
+    steps:
+      - checkout
+      - run:
+          name: Scan for Container Vulnerabilities
+          command: |
+            docker pull anchore/scan-action
+            docker run anchore/scan-action hello-world-nginx
+
