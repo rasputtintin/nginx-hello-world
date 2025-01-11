@@ -23,7 +23,16 @@ jobs:
       - run:
           name: Install Trivy
           command: |
-            curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/scripts/install.sh | sh
+            # Fetch the latest release of Trivy
+            TRIVY_VERSION=$(curl -s https://api.github.com/repos/aquasecurity/trivy/releases/latest | grep -oP '"tag_name": "\K(.*)(?=")')
+            
+            # Download Trivy binary for Linux
+            wget -q https://github.com/aquasecurity/trivy/releases/download/${TRIVY_VERSION}/trivy_${TRIVY_VERSION#v}_Linux-64bit.tar.gz -O trivy.tar.gz
+            
+            # Extract and install
+            tar -xzf trivy.tar.gz
+            sudo mv trivy /usr/local/bin/trivy
+            trivy --version  # Verify installation
 
       # Step 5: Run Trivy scan on the container
       - run:
