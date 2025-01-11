@@ -30,11 +30,11 @@ jobs:
       - run:
           name: Start Anchore Engine
           command: |
-            docker pull docker.io/anchore/anchore-engine:latest
+            docker pull anchore/anchore-engine:v0.10.0  # Use a specific version instead of latest
             docker run -d --name anchore-engine --network host \
               -e ANCHORE_CLI_USER=admin \
               -e ANCHORE_CLI_PASS=foobar \
-              docker.io/anchore/anchore-engine:latest
+              anchore/anchore-engine:v0.10.0  # Use the same specific version here
 
       # Step 6: Wait for Anchore Engine to Initialize
       - run:
