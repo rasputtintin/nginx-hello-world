@@ -6,9 +6,9 @@ orbs:
 jobs:
   vulnerability-scan:
     machine:
-      docker_layer_caching: true  # Enables Docker caching for faster builds
+      docker_layer_caching: true
     steps:
-      # Step 1: Check out the code (if applicable) - VA
+      # Step 1: Check out the code (if applicable)
       - checkout
 
       # Step 2: Authenticate with Docker (optional, for private images)
@@ -17,19 +17,13 @@ jobs:
           command: |
             echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
 
-      # Step 3: Perform Trivy scan with the orb
+      # Step 3: Scan an image with Trivy Orb
       - trivy-orb/scan:
-          image-name: ubuntu:latest
-          severity: HIGH,CRITICAL
-          ignore-unfixed: true
-          format: table
+          arguments: "--severity HIGH,CRITICAL --ignore-unfixed ubuntu:latest"
 
-      # Step 4: Perform a license scan with Trivy
+      # Step 4: License scan with Trivy Orb
       - trivy-orb/scan:
-          image-name: alpine:3.15
-          scanners: license
-          severity: UNKNOWN,HIGH,CRITICAL
-          format: table
+          arguments: "--scanners license --severity UNKNOWN,HIGH,CRITICAL alpine:3.15"
 
 workflows:
   version: 2
