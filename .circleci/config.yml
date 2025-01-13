@@ -2,6 +2,7 @@ version: 2.1
 
 orbs:
   trivy-orb: fifteen5/trivy-orb@1.0.0
+  rezilion: rezilion/rezilion@10.0.0
 
 jobs:
   vulnerability-scan:
@@ -19,6 +20,7 @@ jobs:
       - trivy-orb/scan:
           #args: '--no-progress --exit-code 1 licence busybox'
           args: '--no-progress --security-checks license-full --severity UNKNOWN,HIGH,CRITICAL  --exit-code 1 image alpine:3.15'
+      
       # Step 4: Install Trivy (for advanced use cases like license scanning)
       - run:
           name: Install Trivy
@@ -34,9 +36,19 @@ jobs:
           name: Perform License Scan
           command: |
             trivy image alpine:3.15 --scanners license --severity UNKNOWN,HIGH,CRITICAL --format table
+  
+  test_mongo:
+    docker:
+      - image: mongo:5.0.5
+    steps:
+      - rezilion/rezilion_start:
+          command: |
+            timeout 10 docker-entrypoint.sh mongod || true
+          image_to_scan: mongo:5.0.5
 
 workflows:
   version: 2
   scan-workflow:
     jobs:
       - vulnerability-scan
+      - test_mongo
