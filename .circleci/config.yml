@@ -52,3 +52,6 @@ workflows:
     jobs:
       - vulnerability-scan
       - test_mongo
+      - rezilion/validate:
+          requires:
+            - test_mongo
