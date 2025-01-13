@@ -19,7 +19,7 @@ jobs:
 
       # Step 3: Scan an image with Trivy Orb
       - trivy-orb/scan:
-          arguments: "--severity HIGH,CRITICAL --ignore-unfixed ubuntu:latest"
+          arguments: "--scanners image --severity HIGH,CRITICAL --ignore-unfixed ubuntu:latest"
 
       # Step 4: License scan with Trivy Orb
       - trivy-orb/scan:
