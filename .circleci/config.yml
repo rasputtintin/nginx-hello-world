@@ -11,19 +11,14 @@ jobs:
       # Step 1: Check out the code (if applicable)
       - checkout
 
-      # Step 2: Authenticate with Docker (optional, for private images)
-      - run:
-          name: Authenticate with Docker
-          command: |
-            echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
-
-      # Step 3: Scan an image with Trivy Orb
+      # Step 2: Perform a vulnerability scan using Trivy Orb
       - trivy-orb/scan:
-          arguments: "--scanners image --severity HIGH,CRITICAL --ignore-unfixed ubuntu:latest"
+          image: ubuntu:latest
 
-      # Step 4: License scan with Trivy Orb
+      # Step 3: Perform a license scan using Trivy Orb
       - trivy-orb/scan:
-          arguments: "--scanners license --severity UNKNOWN,HIGH,CRITICAL alpine:3.15"
+          image: alpine:3.15
+          scanners: license
 
 workflows:
   version: 2
