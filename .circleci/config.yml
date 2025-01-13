@@ -18,7 +18,7 @@ jobs:
       # Step 3: Perform a license scan using Trivy Orb
       - trivy-orb/scan:
           #args: '--no-progress --exit-code 1 licence busybox'
-          args: '--no-progress --security-checks license --severity UNKNOWN,HIGH,CRITICAL  --exit-code 1 image alpine:3.15'
+          args: '--no-progress --security-checks license-full --severity UNKNOWN,HIGH,CRITICAL  --exit-code 1 image alpine:3.15'
 
 workflows:
   version: 2
