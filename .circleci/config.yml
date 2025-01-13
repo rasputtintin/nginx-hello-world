@@ -8,7 +8,7 @@ jobs:
     machine:
       docker_layer_caching: true  # Enables Docker caching for faster builds
     steps:
-      # Step 1: Check out the code (if applicable)
+      # Step 1: Check out the code (if applicable) - VA
       - checkout
 
       # Step 2: Authenticate with Docker (optional, for private images)
