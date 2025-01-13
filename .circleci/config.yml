@@ -13,12 +13,11 @@ jobs:
 
       # Step 2: Perform a vulnerability scan using Trivy Orb
       - trivy-orb/scan:
-          image: ubuntu:latest
+          args: '--no-progress --exit-code 1 image ubuntu:latest'
 
       # Step 3: Perform a license scan using Trivy Orb
       - trivy-orb/scan:
-          image: alpine:3.15
-          scanners: license
+          args: '--no-progress --exit-code 1 licence busybox'
 
 workflows:
   version: 2
