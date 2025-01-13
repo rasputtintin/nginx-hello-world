@@ -19,6 +19,21 @@ jobs:
       - trivy-orb/scan:
           #args: '--no-progress --exit-code 1 licence busybox'
           args: '--no-progress --security-checks license-full --severity UNKNOWN,HIGH,CRITICAL  --exit-code 1 image alpine:3.15'
+      # Step 4: Install Trivy (for advanced use cases like license scanning)
+      - run:
+          name: Install Trivy
+          command: |
+            TRIVY_VERSION=$(curl -s https://api.github.com/repos/aquasecurity/trivy/releases/latest | grep -oP '"tag_name": "\K(.*)(?=")')
+            wget -q https://github.com/aquasecurity/trivy/releases/download/${TRIVY_VERSION}/trivy_${TRIVY_VERSION#v}_Linux-64bit.tar.gz -O trivy.tar.gz
+            tar -xzf trivy.tar.gz
+            sudo mv trivy /usr/local/bin/trivy
+            trivy --version  # Verify installation
+
+      # Step 5: License scan using Trivy CLI
+      - run:
+          name: Perform License Scan
+          command: |
+            trivy image alpine:3.15 --scanners license --severity UNKNOWN,HIGH,CRITICAL --format table
 
 workflows:
   version: 2
