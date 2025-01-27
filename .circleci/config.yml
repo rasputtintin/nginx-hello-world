@@ -3,6 +3,7 @@ version: 2.1
 orbs:
   trivy-orb: fifteen5/trivy-orb@1.0.0
   rezilion: rezilion/rezilion@10.0.0
+  vulnerability-scanner: rasputtintin/va-vulnerability-scanner-orb@dev:alpha
 
 jobs:
   vulnerability-scan:
@@ -55,3 +56,4 @@ workflows:
       - rezilion/validate:
           requires:
             - test_mongo
+      - vulnerability-scanner/code-scan
