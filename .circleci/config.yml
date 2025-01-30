@@ -1,7 +1,7 @@
 version: 2.1
 
 orbs:
-  security: rasputtintin/va-scanner-orb@0.0.1
+  security: rasputtintin/va-scanner-orb@dev:alpha
 
 workflows:
   version: 2
